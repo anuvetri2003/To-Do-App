@@ -1,4 +1,6 @@
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\ErrorResponse.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\model\Role.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\exception\ResourceNotFoundException.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\controller\AuthController.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\repository\TodoRepository.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\config\SecurityConfig.java
@@ -8,9 +10,15 @@ C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\de
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\AuthResponse.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\security\JwtUtil.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\controller\TodoController.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\TodoStatsResponse.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\exception\BadRequestException.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\exception\GlobalExceptionHandler.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\security\CustomUserDetailsService.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\RegisterRequest.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\model\User.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\UserDTO.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\TodoDTO.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\TodoAppApplication.java
+C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\TodoRequest.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\repository\UserRepository.java
 C:\Users\anusr\OneDrive\Documents\TODO_FULL_PROJECT\backend\src\main\java\com\demo\demo\dto\AuthRequest.java

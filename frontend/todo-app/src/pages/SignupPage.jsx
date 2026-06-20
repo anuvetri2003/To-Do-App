@@ -28,7 +28,8 @@ export default function SignupPage() {
 
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data || "Registration failed");
+      const data = err.response?.data;
+      setError(data?.message || data || "Registration failed");
     }
   };
 

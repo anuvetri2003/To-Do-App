@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -7,10 +7,12 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import api from "../services/api";
+import { useToast } from "../context/ToastContext";
 import Sidebar from "../components/Sidebar";
 import KanbanColumn from "../components/KanbanColumn";
 import TaskCard from "../components/TaskCard";
 import AddTaskModal from "../components/AddTaskModal";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const COLUMNS = [
   { id: "TODO", title: "To Start" },
@@ -23,38 +25,63 @@ export default function TodoPage() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [activeTask, setActiveTask] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
+  const searchTimer = useRef(null);
+  const mountedRef = useRef(true);
+
+  const toast = useToast();
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
 
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (keyword) => {
+    setLoading(true);
     try {
-      const res = await api.get("/todos");
-      setTasks(res.data);
+      const params = { size: 100 };
+      if (keyword && keyword.trim()) params.keyword = keyword;
+      const res = await api.get("/todos", { params });
+      if (mountedRef.current) setTasks(res.data.content || res.data);
     } catch {
-      // handled by interceptor
+      if (mountedRef.current) toast.error("Failed to load tasks");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await api.get("/todos/stats");
+      if (mountedRef.current) setStats(res.data);
+    } catch {
+      // non-critical
     }
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     loadTasks();
-  }, [loadTasks]);
+    loadStats();
+    return () => { mountedRef.current = false; };
+  }, []);
 
-  const getFilteredTasks = (status) => {
-    let filtered = tasks.filter((t) => t.status === status);
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (t) =>
-          t.task.toLowerCase().includes(q) ||
-          (t.description && t.description.toLowerCase().includes(q))
-      );
-    }
-
-    return filtered;
+  const handleSearch = (value) => {
+    setSearch(value);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      loadTasks(value);
+    }, 400);
   };
+
+  const getFilteredTasks = (status) =>
+    tasks.filter((t) => t.status === status);
 
   const handleDragStart = (event) => {
     const task = event.active.data.current?.task;
@@ -81,8 +108,11 @@ export default function TodoPage() {
 
     try {
       await api.patch(`/todos/${taskId}/status`, { status: targetCol });
+      if (targetCol === "COMPLETED") toast.success("Task completed!");
+      loadStats();
     } catch {
-      loadTasks();
+      loadTasks(search);
+      toast.error("Failed to update status");
     }
   };
 
@@ -90,16 +120,23 @@ export default function TodoPage() {
     try {
       await api.post("/todos", data);
       setShowModal(false);
-      loadTasks();
+      toast.success("Task created successfully!");
+      loadTasks(search);
+      loadStats();
     } catch (err) {
-      console.error("Failed to add task:", err);
-      alert("Failed to add task. Check console for details.");
+      toast.error(err.response?.data?.message || "Failed to add task");
     }
   };
 
   const deleteTask = async (id) => {
-    await api.delete(`/todos/${id}`);
-    loadTasks();
+    try {
+      await api.delete(`/todos/${id}`);
+      toast.success("Task deleted");
+      loadTasks(search);
+      loadStats();
+    } catch (err) {
+      toast.error("Failed to delete task");
+    }
   };
 
   const moveForwardTask = async (id) => {
@@ -108,9 +145,10 @@ export default function TodoPage() {
     );
     try {
       await api.patch(`/todos/${id}/status`, { status: "IN_PROGRESS" });
+      loadStats();
     } catch (err) {
-      console.error("Failed to move task forward:", err);
-      loadTasks();
+      loadTasks(search);
+      toast.error("Failed to move task");
     }
   };
 
@@ -120,9 +158,10 @@ export default function TodoPage() {
     );
     try {
       await api.patch(`/todos/${id}/status`, { status: "TODO" });
+      loadStats();
     } catch (err) {
-      console.error("Failed to move task back:", err);
-      loadTasks();
+      loadTasks(search);
+      toast.error("Failed to move task");
     }
   };
 
@@ -132,14 +171,17 @@ export default function TodoPage() {
     );
     try {
       await api.patch(`/todos/${id}/status`, { status: "COMPLETED" });
+      toast.success("Task completed!");
+      loadStats();
     } catch (err) {
-      console.error("Failed to complete task:", err);
-      loadTasks();
+      loadTasks(search);
+      toast.error("Failed to complete task");
     }
   };
 
   return (
     <div className="dashboard">
+      <LoadingSpinner loading={loading} />
       <Sidebar />
       <main className="main-content">
         <div className="breadcrumb">
@@ -148,10 +190,24 @@ export default function TodoPage() {
 
         <div className="page-header">
           <h1>My Todo</h1>
-          <button className="btn-new-task" onClick={() => setShowModal(true)}>
-            + New Task
-          </button>
+          <div className="page-header-actions">
+            <button className="theme-toggle" onClick={() => setDark((d) => !d)}>
+              {dark ? "☀️" : "🌙"}
+            </button>
+            <button className="btn-new-task" onClick={() => setShowModal(true)}>
+              + New Task
+            </button>
+          </div>
         </div>
+
+        {stats && (
+          <div className="stats-row">
+            <div className="stat-card"><span className="stat-num">{stats.total}</span> Total</div>
+            <div className="stat-card stat-todo"><span className="stat-num">{stats.todo}</span> To Do</div>
+            <div className="stat-card stat-progress"><span className="stat-num">{stats.inProgress}</span> In Progress</div>
+            <div className="stat-card stat-done"><span className="stat-num">{stats.completed}</span> Completed</div>
+          </div>
+        )}
 
         <div className="toolbar">
           <div className="search-box">
@@ -159,10 +215,9 @@ export default function TodoPage() {
             <input
               placeholder="Search tasks..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
-
         </div>
 
         <DndContext
