@@ -1,7 +1,6 @@
 package com.demo.demo.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,11 +12,6 @@ public class Todo {
 
     @Column(nullable = false)
     private String task;
-
-    @Column(length = 500)
-    private String description;
-
-    private LocalDate dueDate;
 
     @Enumerated(EnumType.STRING)
     private TodoStatus status = TodoStatus.TODO;
@@ -45,12 +39,6 @@ public class Todo {
 
     public String getTask() { return task; }
     public void setTask(String task) { this.task = task; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public LocalDate getDueDate() { return dueDate; }
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
 
     public TodoStatus getStatus() { return status; }
     public void setStatus(TodoStatus status) { this.status = status; }

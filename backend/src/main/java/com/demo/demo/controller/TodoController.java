@@ -49,7 +49,7 @@ public class TodoController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "dueDate") String sort,
+            @RequestParam(defaultValue = "createdAt") String sort,
             @RequestParam(defaultValue = "asc") String direction,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
@@ -65,10 +65,7 @@ public class TodoController {
 
             if (keyword != null && !keyword.isBlank()) {
                 String pattern = "%" + keyword.toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("task")), pattern),
-                        cb.like(cb.lower(root.get("description")), pattern)
-                ));
+                predicates.add(cb.like(cb.lower(root.get("task")), pattern));
             }
 
             if (status != null && !status.isBlank()) {
@@ -116,8 +113,6 @@ public class TodoController {
 
         Todo todo = new Todo();
         todo.setTask(request.getTask());
-        todo.setDescription(request.getDescription());
-        if (request.getDueDate() != null) todo.setDueDate(request.getDueDate());
         todo.setStatus(request.getStatus() != null ? request.getStatus() : TodoStatus.TODO);
         todo.setUser(user);
 
@@ -144,8 +139,6 @@ public class TodoController {
         }
 
         todo.setTask(request.getTask());
-        if (request.getDescription() != null) todo.setDescription(request.getDescription());
-        if (request.getDueDate() != null) todo.setDueDate(request.getDueDate());
         if (request.getStatus() != null) todo.setStatus(request.getStatus());
 
         return ResponseEntity.ok(toDTO(todoRepo.save(todo)));
@@ -203,8 +196,6 @@ public class TodoController {
         return new TodoDTO(
                 todo.getId(),
                 todo.getTask(),
-                todo.getDescription(),
-                todo.getDueDate(),
                 todo.getStatus().name(),
                 todo.getCreatedAt(),
                 todo.getUpdatedAt(),
