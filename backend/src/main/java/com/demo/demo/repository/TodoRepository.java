@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface TodoRepository extends JpaRepository<Todo, Long>, JpaSpecificationExecutor<Todo> {
-    List<Todo> findByUserOrderByDueDateAsc(User user);
+    List<Todo> findByUserOrderByCreatedAtAsc(User user);
     long countByUser(User user);
     long countByUserAndStatus(User user, TodoStatus status);
 }
